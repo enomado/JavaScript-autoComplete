@@ -16,14 +16,14 @@
   ],
   "license": "MIT",
   "main": "auto-complete.js",
-  "name": "js-autocomplete-tremby",
+  "name": "js-autocomplete-enomado",
   "optionalDependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tremby/JavaScript-autoComplete.git"
+    "url": "git+https://github.com/enomado/JavaScript-autoComplete.git"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "1.0.5"
+  "version": "1.0.6"
 }
