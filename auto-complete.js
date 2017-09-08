@@ -91,6 +91,10 @@ var autoComplete = (function() {
         that.state.is_opened = false;
       }
 
+      that.is_visible = function() {
+        return that.sc.style.display !== 'none'
+      }
+
 
       that.updateSC = function(resize, next) {
         var rect = that.getBoundingClientRect();
@@ -163,7 +167,10 @@ var autoComplete = (function() {
         that.cache[val] = data;
         if (data.length && val.length >= o.minChars) {
           var s = '';
-          for (var i = 0; i < data.length; i++) s += o.renderItem(data[i], val);
+          for (var i = 0; i < data.length; i++) {
+            that.state.current_variants = data
+            s += o.renderItem(data[i], val);
+          }
           that.sc.innerHTML = s;
           that.updateSC(0);
         } else
@@ -201,11 +208,11 @@ var autoComplete = (function() {
         }
         // enter
         else if (key == 13 || key == 9) {
-          if (that.sc.style.display !== 'none') {
+          if (that.is_visible()) { // prevent form submit for example
             e.preventDefault();
           }
           var sel = that.sc.querySelector('.autocomplete-suggestion.selected');
-          if (sel && that.sc.style.display != 'none') {
+          if (sel && that.is_visible()) {
             o.onSelect({
               event: e,
               value: sel.getAttribute('data-val'),
@@ -222,18 +229,24 @@ var autoComplete = (function() {
 
       that.keyupHandler = function(e) {
         var key = window.event ? e.keyCode : e.which;
-        if (!key || (key < 35 || key > 40) && key != 13 && key != 27) {
+        if (!key || (key < 35 || key > 40) && key != 13 && key != 27) { // non printable keys
           var val = that.value;
           if (val.length >= o.minChars) {
             if (val != that.last_val) {
               that.last_val = val;
               clearTimeout(that.timer);
               if (o.cache) {
-                if (val in that.cache) { suggest(that.cache[val]); return; }
+                if (val in that.cache) {
+                  suggest(that.cache[val]);
+                  return;
+                }
                 // no requests if previous suggestions were empty
                 for (var i = 1; i < val.length - o.minChars; i++) {
                   var part = val.slice(0, val.length - i);
-                  if (part in that.cache && !that.cache[part].length) { suggest([]); return; }
+                  if (part in that.cache && !that.cache[part].length) {
+                    suggest([]);
+                    return;
+                  }
                 }
               }
               that.timer = setTimeout(function() { o.source(val, suggest) }, o.delay);
